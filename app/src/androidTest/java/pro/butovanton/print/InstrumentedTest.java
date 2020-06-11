@@ -39,8 +39,8 @@ public class InstrumentedTest {
         assertEquals("pro.butovanton.print", appContext.getPackageName());
     }
 
-    Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-
+    public Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+/*
     public NetworkService networkService;
     public JSONPlaceHolderApi jsonPlaceHolderApi;
 
@@ -104,10 +104,13 @@ public class InstrumentedTest {
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
     }
+ */
 
     @Test
     public void delPref() {
         Pref pref = new Pref(context);
         pref.saveTel("");
     }
+
+
 }
