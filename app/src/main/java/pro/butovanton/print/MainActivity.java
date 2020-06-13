@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,9 +14,13 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity  {
     private Order order;
     private StorageReference mStorageRef;
     private Button buttonUpload;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +64,26 @@ public class MainActivity extends AppCompatActivity  {
         buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadFileToStorage();
+                uploadFileToStorage("/data/data/pro.butovanton.print/NewTextFile.txt");
             }
         });
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInAnonymously();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        mAuth.getAccessToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                task.getResult().toString();
+            }
+        });
+       // updateUI(currentUser);
     }
 
     AdapterView.OnItemSelectedListener itemSelectedListenerQuality = new AdapterView.OnItemSelectedListener() {
@@ -96,30 +117,17 @@ public class MainActivity extends AppCompatActivity  {
         textViewTel.setText(order.tel);
     }
 
-    private void  uploadFileToStorage() {
-        Uri file = Uri.fromFile(new File("/data/data/pro.butovanton.print/NewTextFile.txt"));
+    private void  uploadFileToStorage(String filePatch) {
+        Uri file = Uri.fromFile(new File(filePatch));
         StorageReference riversRef = mStorageRef.child("images/rivers.jpg");
+        String link;
 
-        riversRef.putFile(file)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // Get a URL to the uploaded content
-                        Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-
-                        if(downloadUri.isSuccessful()) {
-                            String generatedFilePath = downloadUri.getResult().toString();
-                            System.out.println("## Stored path is " + generatedFilePath);
-                        }
-                        }
-                }
-                        )
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                        // ...
-                    }
-                });
+        riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.d("DEBUG", "Patch = " + uri);
+            }
+        });
+        riversRef.putFile(file);
     }
 }
