@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -28,6 +30,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity  {
+
+    final int PICTURE_REQUEST_CODE = 101;
 
     private TextView textViewTel;
     private Pref pref;
@@ -64,26 +68,26 @@ public class MainActivity extends AppCompatActivity  {
         buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadFileToStorage("/data/data/pro.butovanton.print/NewTextFile.txt");
+                Intent i = new Intent();
+                i.setType("image/*");
+                i.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
             }
         });
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.signInAnonymously();
+     //   mAuth.signInAnonymously();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        mAuth.getAccessToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                task.getResult().toString();
-            }
-        });
-       // updateUI(currentUser);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
+
+            Uri selectedImage = data.getData();
+            uploadFileToStorage(selectedImage);
+        }
     }
 
     AdapterView.OnItemSelectedListener itemSelectedListenerQuality = new AdapterView.OnItemSelectedListener() {
@@ -117,17 +121,20 @@ public class MainActivity extends AppCompatActivity  {
         textViewTel.setText(order.tel);
     }
 
-    private void  uploadFileToStorage(String filePatch) {
-        Uri file = Uri.fromFile(new File(filePatch));
-        StorageReference riversRef = mStorageRef.child("images/rivers.jpg");
-        String link;
-
-        riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+    private void  uploadFileToStorage(Uri uri) {
+       StorageReference riversRef = mStorageRef.child(order.tel + "/rivers.jpg");
+       riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Log.d("DEBUG", "Patch = " + uri);
             }
         });
-        riversRef.putFile(file);
+        riversRef.putFile(uri);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    //    mAuth.signOut();
     }
 }
