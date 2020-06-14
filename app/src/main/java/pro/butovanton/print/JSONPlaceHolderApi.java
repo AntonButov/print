@@ -26,13 +26,8 @@ public interface JSONPlaceHolderApi {
     @PUT("disk/resources")
     Call<ResponseBody> createPath(@Query("path") String path);
 
-    @PUT("disk/resources/upload?path=testWW")
-    Call<ResponseBody> uploadFile(@Url String url, @Body RequestBody fileBody);
-
-    @Multipart
-    @POST("upload")
-    Call<ResponseBody> upload(
-            @Part("description") RequestBody description,
-            @Part MultipartBody.Part file
-    );
+    @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
+    //  @Headers("Authorization: OAuth AgAAAAA7QH8JAAZkOX0H1u-N4kpVhbnwjNK9JhM")
+    @POST("disk/resources/upload")
+    Call<ResponseBody> uploadFile(@Query("path") String path, @Query("url") String link);
 }

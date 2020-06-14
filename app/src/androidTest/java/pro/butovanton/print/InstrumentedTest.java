@@ -14,10 +14,6 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,6 +71,29 @@ public class InstrumentedTest {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 assertTrue(response.code() == 201 || response.code() == 409);
+                count.countDown();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+        count.await(1000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void uploadFile() throws InterruptedException {
+        NetworkService networkService;
+        JSONPlaceHolderApi jsonPlaceHolderApi;
+        networkService = NetworkService.getInstance();
+        jsonPlaceHolderApi = networkService.getJSONApi();
+        CountDownLatch count = new CountDownLatch(1);
+        String link = "https://firebasestorage.googleapis.com/v0/b/print-a8bb9.appspot.com/o/%2B3755646782%2Fimage%3A105?alt=media&token=86e0030a-1a87-4210-a6c8-bace1c119098";
+        jsonPlaceHolderApi.uploadFile("/89281240876/testww.jpg", link).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                assertTrue(response.code() == 202);
                 count.countDown();
             }
 

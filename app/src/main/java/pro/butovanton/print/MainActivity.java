@@ -29,6 +29,11 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity  {
 
     final int PICTURE_REQUEST_CODE = 101;
@@ -40,11 +45,17 @@ public class MainActivity extends AppCompatActivity  {
     private StorageReference mStorageRef;
     private Button buttonUpload;
     private FirebaseAuth mAuth;
+    private NetworkService networkService;
+    private JSONPlaceHolderApi jsonPlaceHolderApi;
+    private File file;
+    private String link;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        networkService = NetworkService.getInstance();
+        jsonPlaceHolderApi = networkService.getJSONApi();
         pref = new Pref(getApplicationContext());
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
@@ -77,7 +88,7 @@ public class MainActivity extends AppCompatActivity  {
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.signInAnonymously();
+       // mAuth.signInAnonymously();
         if (pref.getToken().equals("")) {
             mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
                 @Override
@@ -132,12 +143,34 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void  uploadFileToStorage(Uri uri) {
-            File file = new File(uri.getPath());
+            file = new File(uri.getPath());
        StorageReference riversRef = mStorageRef.child(order.tel + "/" + file.getName());
        riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Log.d("DEBUG", "Patch = " + uri);
+                link = uri.toString();
+                jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "testww", link).enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
             }
         });
         riversRef.putFile(uri);
