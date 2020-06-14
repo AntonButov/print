@@ -43,28 +43,6 @@ public class InstrumentedTest {
     public Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
     @Test
-    public void createDir() throws InterruptedException {
-        NetworkService networkService;
-        JSONPlaceHolderApi jsonPlaceHolderApi;
-        networkService = NetworkService.getInstance();
-        jsonPlaceHolderApi = networkService.getJSONApi();
-        CountDownLatch count = new CountDownLatch(1);
-        jsonPlaceHolderApi.createPath("89281240876").enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-            assertTrue(response.code() == 200);
-            count.countDown();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-        count.await(10000, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
     public void disk() throws InterruptedException {
         NetworkService networkService;
         JSONPlaceHolderApi jsonPlaceHolderApi;
@@ -84,6 +62,28 @@ public class InstrumentedTest {
             }
         });
         count.await(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void createDir() throws InterruptedException {
+        NetworkService networkService;
+        JSONPlaceHolderApi jsonPlaceHolderApi;
+        networkService = NetworkService.getInstance();
+        jsonPlaceHolderApi = networkService.getJSONApi();
+        CountDownLatch count = new CountDownLatch(1);
+        jsonPlaceHolderApi.createPath("89281240876").enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                assertTrue(response.code() == 201 || response.code() == 409);
+                count.countDown();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+        count.await(1000, TimeUnit.MILLISECONDS);
     }
 
     @Test
