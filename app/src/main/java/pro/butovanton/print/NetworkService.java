@@ -6,6 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkService {
     private static NetworkService mInstance;
     private static final String BASE_URL = "https://cloud-api.yandex.net:443/v1/";
+
     private Retrofit mRetrofit;
 
     private NetworkService() {

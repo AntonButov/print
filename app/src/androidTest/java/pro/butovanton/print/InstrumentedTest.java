@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -40,71 +41,50 @@ public class InstrumentedTest {
     }
 
     public Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-/*
-    public NetworkService networkService;
-    public JSONPlaceHolderApi jsonPlaceHolderApi;
-
-  //  @Before
- //   public void init() {
-  //      networkService = NetworkService.getInstance();
 
     @Test
-    public  void diskTest() throws InterruptedException {
-        CountDownLatch count = new CountDownLatch(1);
+    public void createDir() throws InterruptedException {
+        NetworkService networkService;
+        JSONPlaceHolderApi jsonPlaceHolderApi;
+        networkService = NetworkService.getInstance();
         jsonPlaceHolderApi = networkService.getJSONApi();
+        CountDownLatch count = new CountDownLatch(1);
+        jsonPlaceHolderApi.createPath("89281240876").enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            assertTrue(response.code() == 200);
+            count.countDown();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+        count.await(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void disk() throws InterruptedException {
+        NetworkService networkService;
+        JSONPlaceHolderApi jsonPlaceHolderApi;
+        networkService = NetworkService.getInstance();
+        jsonPlaceHolderApi = networkService.getJSONApi();
+        CountDownLatch count = new CountDownLatch(1);
         jsonPlaceHolderApi.disk().enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String str = response.body().string();
-                    Log.d("DEBUG", "str = " + str);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                assertTrue(response.code() == 200);
                 count.countDown();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-            count.countDown();
+
             }
         });
-        count.await();
+        count.await(10000, TimeUnit.MILLISECONDS);
     }
-
-    @Test
-    public void uploadTest() throws InterruptedException {
-        CountDownLatch count = new CountDownLatch(1);
-        jsonPlaceHolderApi = networkService.getJSONApi();
-        jsonPlaceHolderApi.upload().enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String str = response.body().string();
-                    Log.d("DEBUG", "str = " + str);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                count.countDown();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                count.countDown();
-            }
-        });
-        count.await();
-    }
-
-    @Test
-    public void uploadImage(File file) {
-        // create multipart
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-    }
- */
 
     @Test
     public void delPref() {

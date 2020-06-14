@@ -12,6 +12,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 import retrofit2.http.Url;
 
 public interface JSONPlaceHolderApi {
@@ -20,11 +21,12 @@ public interface JSONPlaceHolderApi {
     @GET("disk/")
     Call<ResponseBody> disk();
 
+    @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
     //  @Headers("Authorization: OAuth AgAAAAA7QH8JAAZkOX0H1u-N4kpVhbnwjNK9JhM")
-    @GET("disk/resources/upload?path=test2")
-    Call<ResponseBody> upload();
+    @PUT("disk/resources")
+    Call<ResponseBody> createPath(@Query("path") String path);
 
-    @PUT("disk/resources/upload?path=test2")
+    @PUT("disk/resources/upload?path=testWW")
     Call<ResponseBody> uploadFile(@Url String url, @Body RequestBody fileBody);
 
     @Multipart
