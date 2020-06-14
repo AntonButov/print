@@ -77,7 +77,17 @@ public class MainActivity extends AppCompatActivity  {
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-     //   mAuth.signInAnonymously();
+        mAuth.signInAnonymously();
+        if (pref.getToken().equals("")) {
+            mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                @Override
+                public void onSuccess(GetTokenResult getTokenResult) {
+                    String token = getTokenResult.getToken();
+                    pref.saveToken(token);
+                }
+            });
+        }
+        else mAuth.signInWithCustomToken(pref.getToken());
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -122,7 +132,8 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void  uploadFileToStorage(Uri uri) {
-       StorageReference riversRef = mStorageRef.child(order.tel + "/rivers.jpg");
+            File file = new File(uri.getPath());
+       StorageReference riversRef = mStorageRef.child(order.tel + "/" + file.getName());
        riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
@@ -135,6 +146,6 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    //    mAuth.signOut();
+        mAuth.signOut();
     }
 }

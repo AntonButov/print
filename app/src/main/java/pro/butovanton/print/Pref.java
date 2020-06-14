@@ -22,4 +22,13 @@ public String getTel() {
    return msharedPreferences.getString("tel","");
 }
 
+public void saveToken(String token) {
+    SharedPreferences.Editor editor = msharedPreferences.edit();
+    editor.putString("token", token);
+    editor.commit();
+}
+
+    public String getToken() {
+        return msharedPreferences.getString("token","");
+    }
 }
