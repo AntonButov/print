@@ -5,11 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,11 +18,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity  {
     private JSONPlaceHolderApi jsonPlaceHolderApi;
     private File file;
     private String link;
+    private StorageReference orderRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,11 +94,16 @@ public class MainActivity extends AppCompatActivity  {
         mAuth = FirebaseAuth.getInstance();
        // mAuth.signInAnonymously();
         if (pref.getToken().equals("")) {
-            mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+            mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
-                public void onSuccess(GetTokenResult getTokenResult) {
-                    String token = getTokenResult.getToken();
-                    pref.saveToken(token);
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                        @Override
+                        public void onSuccess(GetTokenResult getTokenResult) {
+                            String token = getTokenResult.getToken();
+                            pref.saveToken(token);
+                        }
+                    });
                 }
             });
         }
@@ -144,58 +153,77 @@ public class MainActivity extends AppCompatActivity  {
 
     private void  uploadFileToStorage(Uri uri) {
        file = new File(uri.getPath());
-       StorageReference riversRef = mStorageRef.child(order.tel + "/" + file.getName());
-       riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri url) {
-                Log.d("DEBUG", "Patch = " + url);
-                link = url.toString();
-                jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order", link).enqueue(new Callback<ResponseBody>() {
-                            @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            writeToFile(order.toString(), getBaseContext());
-                            File file = new File(getApplication().getFilesDir()+ "/config.txt");
-                            Uri uriConfig = Uri.fromFile(file);
-                                uploadFileToStorageConfig(uriConfig);
-                            }
+       orderRef = mStorageRef.child(order.tel).child(file.getName());
+       orderRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+               orderRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                   @Override
+                   public void onSuccess(Uri url) {
+                       Log.d("DEBUG", "Patch = " + url);
+                       link = url.toString();
+                       jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                           @Override
+                           public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                               jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order", link).enqueue(new Callback<ResponseBody>() {
+                                   @Override
+                                   public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                       writeToFile(order.toString(), getBaseContext());
+                                       File file = new File(getApplication().getFilesDir()+ "/config.txt");
+                                       Uri uriConfig = Uri.fromFile(file);
+                                  //     riversRef.delete();
+                                       uploadFileToStorageConfig(uriConfig);
+                                   }
 
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                   @Override
+                                   public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                            }
-                        });
-                    }
+                                   }
+                               });
+                           }
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                           @Override
+                           public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                    }
-                });
-            }
-        });
-        riversRef.putFile(uri);
+                           }
+                       });
+                   }
+               });
+           }
+       });
+
     }
 
     private void  uploadFileToStorageConfig(Uri uri) {
         file = new File(uri.getPath());
-        StorageReference riversRef = mStorageRef.child(order.tel + "/" + file.getName());
-        riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        StorageReference configRef = mStorageRef.child(order.tel).child(file.getName());
+        configRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onSuccess(Uri url) {
-                Log.d("DEBUG", "Patch = " + url);
-                link = url.toString();
-                jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                configRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "config.txt", link).enqueue(new Callback<ResponseBody>() {
+                    public void onSuccess(Uri url) {
+                        Log.d("DEBUG", "Patch = " + url);
+                        link = url.toString();
+                        jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                Toast toast = Toast.makeText(getApplicationContext(),"Файл доставлен.",Toast.LENGTH_SHORT);
-                                toast.show();
+                                jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "config.txt", link).enqueue(new Callback<ResponseBody>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                        Toast toast = Toast.makeText(getApplicationContext(),"Файл доставлен.",Toast.LENGTH_SHORT);
+                                        toast.show();
+                                        configRef.delete();
+                                        orderRef.delete();
+                             //           StorageReference del = mStorageRef.child(order.tel);
+                      //                  del.delete();
+                                    }
 
+                                    @Override
+                                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                    }
+                                });
                             }
 
                             @Override
@@ -204,15 +232,9 @@ public class MainActivity extends AppCompatActivity  {
                             }
                         });
                     }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                    }
                 });
             }
         });
-        riversRef.putFile(uri);
     }
 
     private void writeToFile(String data, Context context) {
