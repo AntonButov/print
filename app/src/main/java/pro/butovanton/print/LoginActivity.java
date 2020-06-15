@@ -112,11 +112,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void addNum(String num) {
-        if (textViewTel.length() < 9) {
+        if (textViewTel.length() < 13)
             textViewTel.setText(textViewTel.getText() + num);
-            buttonLogin.setVisibility(View.INVISIBLE);
-        }
+
+        if (textViewTel.length() == 13)
+            buttonLogin.setVisibility(View.VISIBLE);
         else
-          buttonLogin.setVisibility(View.VISIBLE);
+          buttonLogin.setVisibility(View.INVISIBLE);
     }
 }
