@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="pro.butovanton.testmenu.MainActivity">
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="100"
+        android:title="@string/about"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/delivery"
+        android:orderInCategory="101"
+        android:title="@string/delivery"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/price"
+        android:orderInCategory="101"
+        android:title="@string/price"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/payment"
+        android:orderInCategory="101"
+        android:title="@string/payment"
+        app:showAsAction="never" />
+</menu>

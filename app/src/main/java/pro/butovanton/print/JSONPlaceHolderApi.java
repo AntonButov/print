@@ -16,17 +16,21 @@ import retrofit2.http.Query;
 import retrofit2.http.Url;
 
 public interface JSONPlaceHolderApi {
-    @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
+
+    @Headers("Authorization: OAuth AgAAAABCNhaIAADLWwy6GTiFOEf-mvN1UKE71II")
+   // @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
   //  @Headers("Authorization: OAuth AgAAAAA7QH8JAAZkOX0H1u-N4kpVhbnwjNK9JhM")
     @GET("disk/")
     Call<ResponseBody> disk();
 
-    @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
+    @Headers("Authorization: OAuth AgAAAABCNhaIAADLWwy6GTiFOEf-mvN1UKE71II")
+   // @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
     //  @Headers("Authorization: OAuth AgAAAAA7QH8JAAZkOX0H1u-N4kpVhbnwjNK9JhM")
     @PUT("disk/resources")
     Call<ResponseBody> createPath(@Query("path") String path);
 
-    @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
+    @Headers("Authorization: OAuth AgAAAABCNhaIAADLWwy6GTiFOEf-mvN1UKE71II")
+   // @Headers("Authorization: OAuth AgAAAAA7QH8JAADLW3a7j_hCQ0JXnJH1QUJA-8w")
     //  @Headers("Authorization: OAuth AgAAAAA7QH8JAAZkOX0H1u-N4kpVhbnwjNK9JhM")
     @POST("disk/resources/upload")
     Call<ResponseBody> uploadFile(@Query("path") String path, @Query("url") String link);
