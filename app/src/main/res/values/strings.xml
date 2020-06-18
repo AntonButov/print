@@ -20,6 +20,7 @@
         <item>15 x 21</item>
         <item>21 x 30</item>
     </string-array>
+
     <string-array name="quality_array">
         <item>Эконом</item>
         <item>Стандарт</item>
