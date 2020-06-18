@@ -4,12 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +30,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GetTokenResult;
@@ -99,22 +106,8 @@ public class MainActivity extends AppCompatActivity  {
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-       // mAuth.signInAnonymously();
-        if (pref.getToken().equals("")) {
-            mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    mAuth.getCurrentUser().getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
-                        @Override
-                        public void onSuccess(GetTokenResult getTokenResult) {
-                            String token = getTokenResult.getToken();
-                            pref.saveToken(token);
-                        }
-                    });
-                }
-            });
-        }
-        else mAuth.signInWithCustomToken(pref.getToken());
+        if (mAuth.getCurrentUser() == null)
+            mAuth.signInAnonymously();
     }
 
     @Override
@@ -131,10 +124,29 @@ public class MainActivity extends AppCompatActivity  {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-      //  if (id == R.id.action_settings) {
-    //        return true;
-   //     }
+        switch (id) {
+            case (R.id.ver_app):
+                PackageInfo packageInfo = null;
+                try {
+                    packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                String ver = packageInfo.versionName ;
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Версия программы:");
+                builder.setMessage(ver);
+                builder.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                builder.show();
+        }
+
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -194,7 +206,7 @@ public class MainActivity extends AppCompatActivity  {
                        jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
                            @Override
                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                               jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order", link).enqueue(new Callback<ResponseBody>() {
+                               jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order_" + order.num, link).enqueue(new Callback<ResponseBody>() {
                                    @Override
                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                        writeToFile(order.toString(), getBaseContext());
@@ -224,11 +236,11 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void  uploadFileToStorageConfig(Uri uri) {
-        file = new File(uri.getPath());
-        StorageReference configRef = mStorageRef.child(order.tel).child(file.getName());
-        configRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            String filenameConfig = "config_" + order.num + ".txt";
+        StorageReference configRef = mStorageRef.child(order.tel + "/" + filenameConfig);
+        configRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 configRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri url) {
@@ -237,15 +249,20 @@ public class MainActivity extends AppCompatActivity  {
                         jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "config.txt", link).enqueue(new Callback<ResponseBody>() {
+                                jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + filenameConfig, link).enqueue(new Callback<ResponseBody>() {
                                     @Override
                                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                         Toast toast = Toast.makeText(getApplicationContext(),"Файл доставлен.",Toast.LENGTH_SHORT);
                                         toast.show();
-                                        configRef.delete();
-                                        orderRef.delete();
-                             //           StorageReference del = mStorageRef.child(order.tel);
-                      //                  del.delete();
+                                        try {
+                                            Thread.sleep(5000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                                configRef.delete();
+                                                orderRef.delete();
+                                        //           StorageReference del = mStorageRef.child(order.tel);
+                                        //                  del.delete();
                                     }
 
                                     @Override
@@ -262,6 +279,7 @@ public class MainActivity extends AppCompatActivity  {
                         });
                     }
                 });
+
             }
         });
     }

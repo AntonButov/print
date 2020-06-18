@@ -22,4 +22,9 @@
         android:orderInCategory="101"
         android:title="@string/payment"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/ver_app"
+        android:orderInCategory="101"
+        android:title="@string/ver_app"
+        app:showAsAction="never" />
 </menu>
