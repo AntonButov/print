@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity  {
                 Intent i = new Intent();
                 i.setType("image/*");
                 i.setAction(Intent.ACTION_GET_CONTENT);
-                i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
             }
         });
@@ -212,7 +211,6 @@ public class MainActivity extends AppCompatActivity  {
                                        writeToFile(order.toString(), getBaseContext());
                                        File file = new File(getApplication().getFilesDir()+ "/config.txt");
                                        Uri uriConfig = Uri.fromFile(file);
-                                  //     riversRef.delete();
                                        uploadFileToStorageConfig(uriConfig);
                                    }
 

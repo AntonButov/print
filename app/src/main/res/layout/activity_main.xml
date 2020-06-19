@@ -51,7 +51,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="32dp"
-        android:text="Размер"
+        android:text="Размер (см)"
         android:textSize="30dp"
          />
 

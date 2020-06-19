@@ -16,10 +16,10 @@
     <string name="ver_app">Версия программы</string>
 
     <string-array name="size_array">
-        <item>10 x 15</item>
-        <item>13 x 18</item>
-        <item>15 x 21</item>
-        <item>21 x 30</item>
+        <item>10 x 15 (а6)</item>
+        <item>13 x 18 </item>
+        <item>15 x 21 (а5)</item>
+        <item>21 x 30 (а4)</item>
     </string-array>
 
     <string-array name="quality_array">
