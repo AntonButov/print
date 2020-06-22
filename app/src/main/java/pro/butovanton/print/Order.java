@@ -1,10 +1,13 @@
 package pro.butovanton.print;
 
+import android.net.Uri;
+
 public class Order {
     public String tel;
     public String size;
     public String quality;
     public int num;
+    public Uri uri;
 
     public Order() {
         tel = "77777777";

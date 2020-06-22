@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity  {
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
         order = new Order();
-        engine = new Engine(getApplication(), order);
+        engine = new Engine(getApplication());
 
         spinnerSize = findViewById(R.id.spinnerSize);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,

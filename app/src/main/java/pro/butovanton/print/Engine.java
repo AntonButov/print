@@ -46,7 +46,6 @@ public class Engine {
     private NetworkService networkService;
     private JSONPlaceHolderApi jsonPlaceHolderApi;
     private Context contex;
-    private Order order;
     private File file;
     private String link;
     private StorageReference orderRef;
@@ -55,13 +54,13 @@ public class Engine {
     private Integer i = 0;
     private Boolean wait;
     private Uri uriConfigObser;
+    private Order orderThis;
 
 
-    public Engine(Context contex, Order order) {
+    public Engine(Context contex) {
         networkService = NetworkService.getInstance();
         jsonPlaceHolderApi = networkService.getJSONApi();
         this.contex = contex;
-        this.order = order;
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() == null)
@@ -69,15 +68,15 @@ public class Engine {
     }
 
 
-public Observable<Integer> uploadList(List<Uri> uris) {
+public Observable<Integer> uploadList(List<Order> orders) {
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
                 i = 0;
-                for (Uri uri: uris) {
+                for (Order order: orders) {
                     wait = true;
-
-                    uploadFileToStorage(uri).subscribe(new SingleObserver<Uri>() {
+                    orderThis = order;
+                    uploadFileToStorage(order.uri).subscribe(new SingleObserver<Uri>() {
                         @Override
                         public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
@@ -130,7 +129,7 @@ public Observable<Integer> uploadList(List<Uri> uris) {
            @Override
            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull SingleEmitter<Uri> emitter) throws Throwable {
                file = new File(uri.getPath());
-               orderRef = mStorageRef.child(order.tel).child(file.getName());
+               orderRef = mStorageRef.child(orderThis.tel).child(file.getName());
                orderRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                    @Override
                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -139,13 +138,13 @@ public Observable<Integer> uploadList(List<Uri> uris) {
                            public void onSuccess(Uri url) {
                                Log.d("DEBUG", "Patch = " + url);
                                link = url.toString();
-                               jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                               jsonPlaceHolderApi.createPath(orderThis.tel).enqueue(new Callback<ResponseBody>() {
                                    @Override
                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                       jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order_" + order.num, link).enqueue(new Callback<ResponseBody>() {
+                                       jsonPlaceHolderApi.uploadFile("/" + orderThis.tel + "/" + "order_" + orderThis.num, link).enqueue(new Callback<ResponseBody>() {
                                            @Override
                                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                               writeToFile(order.toString(), contex);
+                                               writeToFile(orderThis.toString(), contex);
                                                File file = new File(contex.getFilesDir()+ "/config.txt");
                                                Uri uriConfig = Uri.fromFile(file);
                                                emitter.onSuccess(uriConfig);
@@ -178,8 +177,8 @@ public Observable<Integer> uploadList(List<Uri> uris) {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull SingleEmitter<Boolean> emitter) throws Throwable {
 
-                String filenameConfig = "config_" + order.num + ".txt";
-                StorageReference configRef = mStorageRef.child(order.tel + "/" + filenameConfig);
+                String filenameConfig = "config_" + orderThis.num + ".txt";
+                StorageReference configRef = mStorageRef.child(orderThis.tel + "/" + filenameConfig);
                 configRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -188,10 +187,10 @@ public Observable<Integer> uploadList(List<Uri> uris) {
                             public void onSuccess(Uri url) {
                                 Log.d("DEBUG", "Patch = " + url);
                                 link = url.toString();
-                                jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                                jsonPlaceHolderApi.createPath(orderThis.tel).enqueue(new Callback<ResponseBody>() {
                                     @Override
                                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                        jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + filenameConfig, link).enqueue(new Callback<ResponseBody>() {
+                                        jsonPlaceHolderApi.uploadFile("/" + orderThis.tel + "/" + filenameConfig, link).enqueue(new Callback<ResponseBody>() {
                                             @Override
                                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                                 Toast toast = Toast.makeText(contex,"Файл доставлен.",Toast.LENGTH_SHORT);

@@ -115,16 +115,20 @@ public class InstrumentedTest {
     @Test
     public void uploadList() throws InterruptedException {
 
-        List<Uri> uris = new ArrayList<>();
+        List<Order> orders = new ArrayList<>();
         Uri uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test");
-        uris.add(uri);
-        uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test2");
-        uris.add(uri);
-
-        CountDownLatch count = new CountDownLatch(uris.size());
         Order order = new Order();
-        Engine engine =new Engine(context, order);
-        engine.uploadList(uris).subscribe(new DisposableObserver<Integer>() {
+        order.uri = uri;
+        orders.add(order);
+        uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test2");
+        order = new Order();
+        order.uri = uri;
+        orders.add(order);
+
+        CountDownLatch count = new CountDownLatch(orders.size());
+
+        Engine engine =new Engine(context);
+        engine.uploadList(orders).subscribe(new DisposableObserver<Integer>() {
             @Override
             public void onNext(@NonNull Integer integer) {
                 integer ++;
