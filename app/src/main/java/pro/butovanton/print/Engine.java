@@ -29,6 +29,8 @@ import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
+import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.core.SingleOnSubscribe;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.BiFunction;
@@ -75,53 +77,45 @@ public Observable<Integer> uploadList(List<Uri> uris) {
                 for (Uri uri: uris) {
                     wait = true;
 
-                    uploadFileToStorage(uri).subscribe(new Observer<Uri>() {
+                    uploadFileToStorage(uri).subscribe(new SingleObserver<Uri>() {
                         @Override
                         public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(@io.reactivex.rxjava3.annotations.NonNull Uri uri) {
-                        uriConfigObser = uri;
+                        public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Uri uri) {
+                            uriConfigObser = uri;
+                            wait = false;
                         }
 
                         @Override
                         public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                        wait = false;
-                        }
-
-                        @Override
-                        public void onComplete() {
-                        wait = false;
+                            Log.d("DEBUG", "error " + e);
                         }
                     });
-                while (wait)
+                    while (wait)
                     Thread.sleep(1000);
                 wait = true;
-                uploadFileToStorageConfig(uriConfigObser).subscribe(new Observer<Boolean>() {
+                uploadFileToStorageConfig(uriConfigObser).subscribe(new SingleObserver<Boolean>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
-
+                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                        wait = false;
                     }
 
                     @Override
                     public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
                         wait = false;
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        wait = false;
+                        Log.d("DEBUG", "error " + e);
                     }
                 });
-                    while (wait)
-                        Thread.sleep(1000);
+                 while (wait)
+                       Thread.sleep(1000);
 
                 emitter.onNext(i ++);
                 }
@@ -131,10 +125,10 @@ public Observable<Integer> uploadList(List<Uri> uris) {
           .observeOn(AndroidSchedulers.mainThread());
 }
 
-    private Observable<Uri> uploadFileToStorage(Uri uri) {
-       return Observable.create(new ObservableOnSubscribe<Uri>()  {
+    private Single<Uri> uploadFileToStorage(Uri uri) {
+       return Single.create(new SingleOnSubscribe<Uri>()  {
            @Override
-           public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Uri> emitter) throws Throwable {
+           public void subscribe(@io.reactivex.rxjava3.annotations.NonNull SingleEmitter<Uri> emitter) throws Throwable {
                file = new File(uri.getPath());
                orderRef = mStorageRef.child(order.tel).child(file.getName());
                orderRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -154,13 +148,12 @@ public Observable<Integer> uploadList(List<Uri> uris) {
                                                writeToFile(order.toString(), contex);
                                                File file = new File(contex.getFilesDir()+ "/config.txt");
                                                Uri uriConfig = Uri.fromFile(file);
-                                               emitter.onNext(uriConfig);
-                                               emitter.onComplete();
+                                               emitter.onSuccess(uriConfig);
                                            }
 
                                            @Override
                                            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                                emitter.onError(new Throwable("error"));
+                                                emitter.onError(new Throwable("error order file"));
                                            }
                                        });
                                    }
@@ -180,10 +173,11 @@ public Observable<Integer> uploadList(List<Uri> uris) {
 
     }
 
-    private Observable<Boolean>  uploadFileToStorageConfig(Uri uri) {
-        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+    private Single<Boolean>  uploadFileToStorageConfig(Uri uri) {
+        return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
-            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter) throws Throwable {
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull SingleEmitter<Boolean> emitter) throws Throwable {
+
                 String filenameConfig = "config_" + order.num + ".txt";
                 StorageReference configRef = mStorageRef.child(order.tel + "/" + filenameConfig);
                 configRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -209,12 +203,12 @@ public Observable<Integer> uploadList(List<Uri> uris) {
                                                 }
                                                 configRef.delete();
                                                 orderRef.delete();
-                                               emitter.onComplete();
+                                               emitter.onSuccess(true);
                                             }
 
                                             @Override
                                             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                                emitter.onError(new Throwable("error2"));
+                                                emitter.onError(new Throwable("error config file"));
                                             }
                                         });
                                     }

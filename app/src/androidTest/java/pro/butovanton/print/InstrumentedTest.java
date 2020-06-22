@@ -114,26 +114,32 @@ public class InstrumentedTest {
 
     @Test
     public void uploadList() throws InterruptedException {
-        CountDownLatch count = new CountDownLatch(1);
+
         List<Uri> uris = new ArrayList<>();
         Uri uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test");
         uris.add(uri);
+        uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test2");
+        uris.add(uri);
+
+        CountDownLatch count = new CountDownLatch(uris.size());
         Order order = new Order();
         Engine engine =new Engine(context, order);
         engine.uploadList(uris).subscribe(new DisposableObserver<Integer>() {
             @Override
             public void onNext(@NonNull Integer integer) {
-                Log.d("DEBUG", "upload: " + integer + "files");
+                integer ++;
+                Log.d("DEBUG", "upload: " + integer + " files");
+                count.countDown();
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
-
+            assertTrue(false);
             }
 
             @Override
             public void onComplete() {
-
+                System.out.println("test ok");
             }
         });
 
