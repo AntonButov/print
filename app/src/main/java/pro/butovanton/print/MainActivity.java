@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            engine.uploadFileToStorage(selectedImage);
+          //  engine.uploadFileToStorage(selectedImage);
         }
     }
 

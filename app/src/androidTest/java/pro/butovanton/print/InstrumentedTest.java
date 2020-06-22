@@ -1,6 +1,7 @@
 package pro.butovanton.print;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -11,9 +12,15 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -103,6 +110,34 @@ public class InstrumentedTest {
             }
         });
         count.await(1000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void uploadList() throws InterruptedException {
+        CountDownLatch count = new CountDownLatch(1);
+        List<Uri> uris = new ArrayList<>();
+        Uri uri = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test");
+        uris.add(uri);
+        Order order = new Order();
+        Engine engine =new Engine(context, order);
+        engine.uploadList(uris).subscribe(new DisposableObserver<Integer>() {
+            @Override
+            public void onNext(@NonNull Integer integer) {
+                Log.d("DEBUG", "upload: " + integer + "files");
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        count.await(1, TimeUnit.MINUTES);
     }
 
     @Test

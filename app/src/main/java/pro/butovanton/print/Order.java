@@ -7,6 +7,9 @@ public class Order {
     public int num;
 
     public Order() {
+        tel = "77777777";
+        size = "15 x 20";
+        quality = "econom";
         num = 1;
     }
 

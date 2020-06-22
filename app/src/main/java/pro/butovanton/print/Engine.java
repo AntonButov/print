@@ -19,7 +19,21 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Emitter;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.BiFunction;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,6 +50,10 @@ public class Engine {
     private StorageReference orderRef;
     private StorageReference mStorageRef;
     private FirebaseAuth mAuth;
+    private Integer i = 0;
+    private Boolean wait;
+    private Uri uriConfigObser;
+
 
     public Engine(Context contex, Order order) {
         networkService = NetworkService.getInstance();
@@ -48,78 +66,157 @@ public class Engine {
             mAuth.signInAnonymously();
     }
 
-   // public
 
-    public void  uploadFileToStorage(Uri uri) {
-        file = new File(uri.getPath());
-        orderRef = mStorageRef.child(order.tel).child(file.getName());
-        orderRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+public Observable<Integer> uploadList(List<Uri> uris) {
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                orderRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
+                i = 0;
+                for (Uri uri: uris) {
+                    wait = true;
+
+                    uploadFileToStorage(uri).subscribe(new Observer<Uri>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(@io.reactivex.rxjava3.annotations.NonNull Uri uri) {
+                        uriConfigObser = uri;
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        wait = false;
+                        }
+
+                        @Override
+                        public void onComplete() {
+                        wait = false;
+                        }
+                    });
+                while (wait)
+                    Thread.sleep(1000);
+                wait = true;
+                uploadFileToStorageConfig(uriConfigObser).subscribe(new Observer<Boolean>() {
                     @Override
-                    public void onSuccess(Uri url) {
-                        Log.d("DEBUG", "Patch = " + url);
-                        link = url.toString();
-                        jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
-                            @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order_" + order.num, link).enqueue(new Callback<ResponseBody>() {
-                                    @Override
-                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                        writeToFile(order.toString(), contex);
-                                        File file = new File(contex.getFilesDir()+ "/config.txt");
-                                        Uri uriConfig = Uri.fromFile(file);
-                                        uploadFileToStorageConfig(uriConfig);
-                                    }
+                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
-                                    @Override
-                                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    }
 
-                                    }
-                                });
-                            }
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
 
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    }
 
-                            }
-                        });
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        wait = false;
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        wait = false;
                     }
                 });
+                    while (wait)
+                        Thread.sleep(1000);
+
+                emitter.onNext(i ++);
+                }
+            emitter.onComplete();
             }
-        });
+        }).subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread());
+}
+
+    private Observable<Uri> uploadFileToStorage(Uri uri) {
+       return Observable.create(new ObservableOnSubscribe<Uri>()  {
+           @Override
+           public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Uri> emitter) throws Throwable {
+               file = new File(uri.getPath());
+               orderRef = mStorageRef.child(order.tel).child(file.getName());
+               orderRef.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                       orderRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                           @Override
+                           public void onSuccess(Uri url) {
+                               Log.d("DEBUG", "Patch = " + url);
+                               link = url.toString();
+                               jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                                   @Override
+                                   public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                       jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + "order_" + order.num, link).enqueue(new Callback<ResponseBody>() {
+                                           @Override
+                                           public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                               writeToFile(order.toString(), contex);
+                                               File file = new File(contex.getFilesDir()+ "/config.txt");
+                                               Uri uriConfig = Uri.fromFile(file);
+                                               emitter.onNext(uriConfig);
+                                               emitter.onComplete();
+                                           }
+
+                                           @Override
+                                           public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                                emitter.onError(new Throwable("error"));
+                                           }
+                                       });
+                                   }
+
+                                   @Override
+                                   public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                   }
+                               });
+                           }
+                       });
+                   }
+               });
+
+           }
+       });
 
     }
 
-    private void  uploadFileToStorageConfig(Uri uri) {
-        String filenameConfig = "config_" + order.num + ".txt";
-        StorageReference configRef = mStorageRef.child(order.tel + "/" + filenameConfig);
-        configRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+    private Observable<Boolean>  uploadFileToStorageConfig(Uri uri) {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                configRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Boolean> emitter) throws Throwable {
+                String filenameConfig = "config_" + order.num + ".txt";
+                StorageReference configRef = mStorageRef.child(order.tel + "/" + filenameConfig);
+                configRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onSuccess(Uri url) {
-                        Log.d("DEBUG", "Patch = " + url);
-                        link = url.toString();
-                        jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        configRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + filenameConfig, link).enqueue(new Callback<ResponseBody>() {
+                            public void onSuccess(Uri url) {
+                                Log.d("DEBUG", "Patch = " + url);
+                                link = url.toString();
+                                jsonPlaceHolderApi.createPath(order.tel).enqueue(new Callback<ResponseBody>() {
                                     @Override
                                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                        Toast toast = Toast.makeText(contex,"Файл доставлен.",Toast.LENGTH_SHORT);
-                                        toast.show();
-                                        try {
-                                            Thread.sleep(5000);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        configRef.delete();
-                                        orderRef.delete();
-                                        //           StorageReference del = mStorageRef.child(order.tel);
-                                        //                  del.delete();
+                                        jsonPlaceHolderApi.uploadFile("/" + order.tel + "/" + filenameConfig, link).enqueue(new Callback<ResponseBody>() {
+                                            @Override
+                                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                Toast toast = Toast.makeText(contex,"Файл доставлен.",Toast.LENGTH_SHORT);
+                                                toast.show();
+                                                try {
+                                                    Thread.sleep(5000);
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                configRef.delete();
+                                                orderRef.delete();
+                                               emitter.onComplete();
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                                emitter.onError(new Throwable("error2"));
+                                            }
+                                        });
                                     }
 
                                     @Override
@@ -128,15 +225,10 @@ public class Engine {
                                     }
                                 });
                             }
-
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                            }
                         });
+
                     }
                 });
-
             }
         });
     }
