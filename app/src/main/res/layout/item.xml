@@ -29,10 +29,35 @@
                 android:layout_height="match_parent"
                 android:padding="10dp">
 
+                <Spinner
+                    android:id="@+id/spinnerQuant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:textSize="32sp"
+                    android:theme="@style/Spinner"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageView" />
+
+                <TextView
+                    android:id="@+id/textViewQant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Кол-во:"
+                    android:textSize="30dp"
+                    app:layout_constraintBottom_toTopOf="@+id/spinnerQuant"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageView" />
+
                 <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="200dp"
                     android:layout_height="200dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
                     android:elevation="3dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -42,11 +67,13 @@
                     android:id="@+id/textItemPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:text="400 Р"
                     android:textSize="24sp"
+                    app:layout_constraintBottom_toTopOf="@+id/textViewQant"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/imageView"
-                    tools:layout_editor_absoluteY="41dp" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -61,39 +88,53 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginTop="32dp"
+                        android:text="Размер (см)"
+                        android:textSize="30dp"
+                        />
+
                     <Spinner
-                        android:id="@+id/spinnerSize2"
+                        android:id="@+id/spinnerSize"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginLeft="16dp"
                         android:layout_marginTop="32dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
-                        android:layout_weight="1"
                         android:textSize="32sp"
-                        android:theme="@style/Spinner" />
+                        android:theme="@style/Spinner"
+                        />
 
-                    <Spinner
-                        android:id="@+id/spinnerSize2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                    <TextView
+                        android:id="@+id/textViewQality"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginLeft="16dp"
-                        android:layout_marginTop="32dp"
+                        android:layout_marginTop="24dp"
+                        android:text="Качество"
+                        android:textSize="30dp"
+                        />
+
+                    <Spinner
+                        android:id="@+id/spinnerSizeQuality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
-                        android:layout_weight="1"
                         android:textSize="32sp"
-                        android:theme="@style/Spinner" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="3"
-                    android:orientation="vertical">
-
+                        android:theme="@style/Spinner"
+                        />
                 </LinearLayout>
 
             </LinearLayout>

@@ -3,6 +3,8 @@ package pro.butovanton.print;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -26,17 +28,23 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity  {
+import static java.security.AccessController.getContext;
+
+
+public class MainActivity extends AppCompatActivity implements ItemClickListener {
 
     final int PICTURE_REQUEST_CODE = 101;
 
     private TextView textViewTel;
     private Pref pref;
-    private Spinner spinnerSize, spinerQuality;
-    private Order order;
-    private Button buttonUpload;
+    private List<Order> orders;
+
     private Engine engine;
+    private RecyclerView recyclerView;
+    private RecyclerAdapterPrint adapterPrint;
+    private LinearLayoutManager lm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,35 +53,16 @@ public class MainActivity extends AppCompatActivity  {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         pref = new Pref(getApplicationContext());
+
+        recyclerView = findViewById(R.id.reciclerOrders);
+        adapterPrint = new RecyclerAdapterPrint(this, getApplicationContext());
+        lm = new LinearLayoutManager(getBaseContext());
+        recyclerView.setLayoutManager( lm );
+        recyclerView.setAdapter(adapterPrint);
+
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
-        order = new Order();
         engine = new Engine(getApplication());
-
-        spinnerSize = findViewById(R.id.spinnerSize);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.size_array, R.layout.spiner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSize.setAdapter(adapter);
-        spinnerSize.setOnItemSelectedListener(itemSelectedListenerSize);
-
-        spinerQuality = findViewById(R.id.spinnerSizeQuality);
-        ArrayAdapter<CharSequence> adapterQuality = ArrayAdapter.createFromResource(this,
-                R.array.quality_array, R.layout.spiner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinerQuality.setAdapter(adapterQuality);
-        spinerQuality.setOnItemSelectedListener(itemSelectedListenerQuality);
-
-        buttonUpload = findViewById(R.id.buttonUpload);
-        buttonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent();
-                i.setType("image/*");
-                i.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
-            }
-        });
 
     }
 
@@ -118,44 +107,10 @@ public class MainActivity extends AppCompatActivity  {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-          //  engine.uploadFileToStorage(selectedImage);
-        }
-    }
-
-    AdapterView.OnItemSelectedListener itemSelectedListenerQuality = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            order.quality = parent.getItemAtPosition(position).toString();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
-    AdapterView.OnItemSelectedListener itemSelectedListenerSize = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            order.size = parent.getItemAtPosition(position).toString();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
         @Override
     protected void onResume() {
         super.onResume();
-        order.tel = pref.getTel();
-        textViewTel.setText(order.tel);
+        textViewTel.setText(pref.getTel());
     }
 
 
@@ -163,5 +118,32 @@ public class MainActivity extends AppCompatActivity  {
     protected void onDestroy() {
         super.onDestroy();
 //        mAuth.signOut();
+    }
+
+    @Override
+    public void onItemClickChanger(Order order) {
+
+    }
+
+    @Override
+    public void onItemClickDelete(int position) {
+
+    }
+
+    @Override
+    public void onItemClickImage(int position) {
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            //  engine.uploadFileToStorage(selectedImage);
+        }
     }
 }

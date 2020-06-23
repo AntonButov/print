@@ -22,6 +22,8 @@ public class Order {
                 "tel='" + tel + '\'' +
                 ", size='" + size + '\'' +
                 ", quality='" + quality + '\'' +
+                ", num=" + num +
+                ", uri=" + uri +
                 '}';
     }
 }
