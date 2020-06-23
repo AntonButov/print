@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.security.AccessController.getContext;
@@ -40,11 +41,14 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     private TextView textViewTel;
     private Pref pref;
     private List<Order> orders;
+    private Button buttonPrint;
 
     private Engine engine;
     private RecyclerView recyclerView;
     private RecyclerAdapterPrint adapterPrint;
     private LinearLayoutManager lm;
+
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +58,23 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         setSupportActionBar(toolbar);
         pref = new Pref(getApplicationContext());
 
+        orders = new ArrayList<>();
+        Order order = new Order();
+        order.tel = pref.getTel();
+        orders.add(order);
+
         recyclerView = findViewById(R.id.reciclerOrders);
         adapterPrint = new RecyclerAdapterPrint(this, getApplicationContext());
         lm = new LinearLayoutManager(getBaseContext());
         recyclerView.setLayoutManager( lm );
         recyclerView.setAdapter(adapterPrint);
+        adapterPrint.adnotify(orders);
 
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
         engine = new Engine(getApplication());
 
+        buttonPrint = findViewById(R.id.buttonPrint);
     }
 
     @Override
@@ -111,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     protected void onResume() {
         super.onResume();
         textViewTel.setText(pref.getTel());
+        buttonPrint.setVisibility(View.VISIBLE);
+        for (Order order : orders)
+            if (order.uri == null)
+                buttonPrint.setVisibility(View.INVISIBLE);
     }
 
 
@@ -132,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     @Override
     public void onItemClickImage(int position) {
+        this.position = position;
         Intent i = new Intent();
         i.setType("image/*");
         i.setAction(Intent.ACTION_GET_CONTENT);
@@ -143,6 +159,10 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
+        Order order = orders.get(position);
+        order.uri = selectedImage;
+        orders.set(position, order);
+        adapterPrint.adnotify(orders);
             //  engine.uploadFileToStorage(selectedImage);
         }
     }

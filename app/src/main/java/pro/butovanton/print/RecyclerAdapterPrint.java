@@ -1,7 +1,6 @@
 package pro.butovanton.print;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,7 +60,7 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //   mainActivity.onItemClick(listUsers.get(position).login);
+                mainActivity.onItemClickImage(positionAdapter);
             }
         });
 
@@ -112,13 +110,13 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
 
             spinnerSize = view.findViewById(R.id.spinnerSize);
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
-                    R.array.size_array, R.layout.spiner);
+                    R.array.size_array, R.layout.spinersize);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSize.setAdapter(adapter);
 
               spinerQuality = view.findViewById(R.id.spinnerSizeQuality);
             ArrayAdapter<CharSequence> adapterQuality = ArrayAdapter.createFromResource(context,
-                    R.array.quality_array, R.layout.spiner);
+                    R.array.quality_array, R.layout.spinerquality);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinerQuality.setAdapter(adapterQuality);
         }
