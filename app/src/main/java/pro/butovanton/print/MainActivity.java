@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     private TextView textViewTel;
     private Pref pref;
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
     private Button buttonPrint;
 
     private Engine engine;
@@ -58,23 +58,33 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         setSupportActionBar(toolbar);
         pref = new Pref(getApplicationContext());
 
-        orders = new ArrayList<>();
-        Order order = new Order();
-        order.tel = pref.getTel();
-        orders.add(order);
-
-        recyclerView = findViewById(R.id.reciclerOrders);
+          recyclerView = findViewById(R.id.reciclerOrders);
         adapterPrint = new RecyclerAdapterPrint(this, getApplicationContext());
         lm = new LinearLayoutManager(getBaseContext());
         recyclerView.setLayoutManager( lm );
         recyclerView.setAdapter(adapterPrint);
-        adapterPrint.adnotify(orders);
+
+        addNewOrder();
 
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
         engine = new Engine(getApplication());
 
         buttonPrint = findViewById(R.id.buttonPrint);
+        buttonPrint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               engine.uploadList(orders);
+                addNewOrder();
+            }
+        });
+    }
+
+    private void addNewOrder() {
+        Order order = new Order();
+        order.tel = pref.getTel();
+        orders.add(order);
+        adapterPrint.adnotify(orders);
     }
 
     @Override
@@ -164,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         orders.set(position, order);
         adapterPrint.adnotify(orders);
             //  engine.uploadFileToStorage(selectedImage);
+        onResume();
         }
     }
 }

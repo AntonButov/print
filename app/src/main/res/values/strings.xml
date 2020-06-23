@@ -22,6 +22,13 @@
         <item>21 x 30 (а4)</item>
     </string-array>
 
+    <string-array name="quantity_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
     <string-array name="quality_array">
         <item>Эконом</item>
         <item>Стандарт</item>

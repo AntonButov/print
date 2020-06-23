@@ -1,6 +1,7 @@
 package pro.butovanton.print;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,13 +50,13 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerAdapterPrint.ViewHolderPrint holder, final int positionAdapter) {
-
+    Uri uri = orders.get(positionAdapter).uri;
+    if (uri != null) {
         Picasso
                 .get()
-                .load(orders
-                .get(positionAdapter)
-                .uri)
+                .load(orders.get(positionAdapter).uri)
                 .into(holder.imageView);
+    }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +87,19 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
 
             }
         });
+
+        holder.spinnerQuantity.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                orders.get(positionAdapter).quantity = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
     }
 
@@ -119,6 +133,12 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
                     R.array.quality_array, R.layout.spinerquality);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinerQuality.setAdapter(adapterQuality);
+
+            spinnerQuantity = view.findViewById(R.id.spinnerQuant);
+            ArrayAdapter<CharSequence> adapterQuant = ArrayAdapter.createFromResource(context,
+                    R.array.quantity_array, R.layout.spinerquantity);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerQuantity.setAdapter(adapterQuant);
         }
 
     }

@@ -6,6 +6,7 @@ public class Order {
     public String tel;
     public String size;
     public String quality;
+    public String quantity;
     public int num;
     public Uri uri;
 
