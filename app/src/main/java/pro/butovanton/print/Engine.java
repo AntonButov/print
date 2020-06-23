@@ -74,49 +74,51 @@ public Observable<Integer> uploadList(List<Order> orders) {
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
                 i = 0;
                 for (Order order: orders) {
-                    wait = true;
-                    orderThis = order;
-                    uploadFileToStorage(order.uri).subscribe(new SingleObserver<Uri>() {
-                        @Override
-                        public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                    if (order.uri != null) {
+                        wait = true;
+                        orderThis = order;
+                        uploadFileToStorage(order.uri).subscribe(new SingleObserver<Uri>() {
+                            @Override
+                            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
-                        }
+                            }
 
-                        @Override
-                        public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Uri uri) {
-                            uriConfigObser = uri;
-                            wait = false;
-                        }
+                            @Override
+                            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Uri uri) {
+                                uriConfigObser = uri;
+                                wait = false;
+                            }
 
-                        @Override
-                        public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                            Log.d("DEBUG", "error " + e);
-                        }
-                    });
-                    while (wait)
-                    Thread.sleep(1000);
-                wait = true;
-                uploadFileToStorageConfig(uriConfigObser).subscribe(new SingleObserver<Boolean>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                Log.d("DEBUG", "error " + e);
+                            }
+                        });
+                        while (wait)
+                            Thread.sleep(1000);
+                        wait = true;
+                        uploadFileToStorageConfig(uriConfigObser).subscribe(new SingleObserver<Boolean>() {
+                            @Override
+                            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
+                            }
+
+                            @Override
+                            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
+                                wait = false;
+                            }
+
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                                wait = false;
+                                Log.d("DEBUG", "error " + e);
+                            }
+                        });
+                        while (wait)
+                            Thread.sleep(1000);
+
+                        emitter.onNext(i++);
                     }
-
-                    @Override
-                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Boolean aBoolean) {
-                        wait = false;
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                        wait = false;
-                        Log.d("DEBUG", "error " + e);
-                    }
-                });
-                 while (wait)
-                       Thread.sleep(1000);
-
-                emitter.onNext(i ++);
                 }
             emitter.onComplete();
             }

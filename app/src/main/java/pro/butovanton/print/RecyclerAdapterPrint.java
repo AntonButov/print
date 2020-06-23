@@ -58,10 +58,10 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
                 .into(holder.imageView);
     }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.onItemClickImage(positionAdapter);
+                    mainActivity.onItemClickImage(positionAdapter);
             }
         });
 

@@ -127,7 +127,7 @@ public class InstrumentedTest {
 
         CountDownLatch count = new CountDownLatch(orders.size());
 
-        Engine engine =new Engine(context);
+        Engine engine = new Engine(context);
         engine.uploadList(orders).subscribe(new DisposableObserver<Integer>() {
             @Override
             public void onNext(@NonNull Integer integer) {

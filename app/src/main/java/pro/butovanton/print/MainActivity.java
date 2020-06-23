@@ -1,6 +1,5 @@
 package pro.butovanton.print;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +29,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 
 import static java.security.AccessController.getContext;
 
@@ -74,7 +76,23 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         buttonPrint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               engine.uploadList(orders);
+                engine.uploadList(orders).subscribe(new DisposableObserver<Integer>() {
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Integer integer) {
+                        integer ++;
+                        Log.d("DEBUG", "upload: " + integer + " files");
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        System.out.println("uppload ok");
+                    }
+                });
+
                 addNewOrder();
             }
         });
@@ -83,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     private void addNewOrder() {
         Order order = new Order();
         order.tel = pref.getTel();
+        order.num = orders.size();
         orders.add(order);
         adapterPrint.adnotify(orders);
     }
@@ -132,10 +151,11 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     protected void onResume() {
         super.onResume();
         textViewTel.setText(pref.getTel());
-        buttonPrint.setVisibility(View.VISIBLE);
-        for (Order order : orders)
-            if (order.uri == null)
-                buttonPrint.setVisibility(View.INVISIBLE);
+        buttonPrint.setVisibility(View.INVISIBLE);
+        for (Order order : orders) {
+            if (order.uri != null)
+                buttonPrint.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -173,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         order.uri = selectedImage;
         orders.set(position, order);
         adapterPrint.adnotify(orders);
+        addNewOrder();
             //  engine.uploadFileToStorage(selectedImage);
         onResume();
         }

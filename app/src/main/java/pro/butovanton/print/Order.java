@@ -23,6 +23,7 @@ public class Order {
                 "tel='" + tel + '\'' +
                 ", size='" + size + '\'' +
                 ", quality='" + quality + '\'' +
+                ", quantity='" + quantity + '\'' +
                 ", num=" + num +
                 ", uri=" + uri +
                 '}';
