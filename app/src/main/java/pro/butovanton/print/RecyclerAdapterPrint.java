@@ -34,7 +34,7 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
         mInflater = LayoutInflater.from(context);
         orders = new ArrayList<>();
         this.context = context;
-        uriDefault = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test");
+        uriDefault = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/defaulturi");
     }
 
     @NonNull

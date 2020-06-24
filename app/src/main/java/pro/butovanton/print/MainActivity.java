@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     private RecyclerView recyclerView;
     private RecyclerAdapterPrint adapterPrint;
     private LinearLayoutManager lm;
+    private ProgressBar processBar;
 
     private int position;
 
@@ -73,15 +75,21 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         textViewResult = findViewById(R.id.textViewResult);
         engine = new Engine(getApplication());
 
+        processBar = findViewById(R.id.progressBar);
         buttonPrint = findViewById(R.id.buttonPrint);
         buttonPrint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                buttonPrint.setVisibility(View.INVISIBLE);
+                processBar.setMax(orders.size());
+                processBar.setProgress(1);
+                processBar.setVisibility(View.VISIBLE);
                 engine.uploadList(orders).subscribe(new DisposableObserver<Integer>() {
                     @Override
                     public void onNext(@io.reactivex.rxjava3.annotations.NonNull Integer integer) {
                         integer ++;
                         Log.d("DEBUG", "upload: " + integer + " files");
+                        processBar.setProgress(integer);
                     }
 
                     @Override
@@ -90,11 +98,20 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
                     @Override
                     public void onComplete() {
+                        buttonPrint.setVisibility(View.VISIBLE);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Загрузка завершена.");
+                        builder.setMessage("Загружено: " + (orders.size() - 1) + " файлов.");
+                        builder.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            processBar.setProgress(0);
+                            }
+                        });
+                        builder.show();
                         System.out.println("uppload ok");
                     }
                 });
-
-                addNewOrder();
             }
         });
     }
@@ -154,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         textViewTel.setText(pref.getTel());
         buttonPrint.setVisibility(View.INVISIBLE);
         for (Order order : orders) {
-            if (order.uri != null)
+            if (order.uri != RecyclerAdapterPrint.uriDefault)
                 buttonPrint.setVisibility(View.VISIBLE);
         }
         textViewResult.setText("Итого: " + oredersGetResult());

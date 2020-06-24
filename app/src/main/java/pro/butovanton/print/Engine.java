@@ -69,11 +69,14 @@ public class Engine {
 
 
 public Observable<Integer> uploadList(List<Order> orders) {
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
+      //  orders.remove(orders.size() - 1);
+            return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
                 i = 0;
-                for (Order order: orders) {
+                Order order = new Order();
+                for (; i < orders.size() -1; ) {
+                    order = orders.get(i);
                     if (order.uri != null) {
                         wait = true;
                         orderThis = order;
