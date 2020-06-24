@@ -20,58 +20,45 @@
             android:layout_height="match_parent"
             android:padding="10dp">
 
-                <Spinner
-                    android:id="@+id/spinnerQuant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:textSize="32sp"
-                    android:theme="@style/Spinner"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView" />
-
-            <TextView
-                android:id="@+id/textViewQant"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Кол-во:"
-                android:textSize="30dp"
-                android:textColor="@color/cardview_dark_background"
-                app:layout_constraintBottom_toTopOf="@+id/spinnerQuant"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageView" />
-
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
-                android:scaleType="fitCenter"
                 android:elevation="3dp"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_menu_add"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:src="@android:drawable/ic_menu_add" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textItemPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="400 Р"
-                android:textSize="24sp"
                 android:textColor="@color/cardview_dark_background"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@+id/textViewQant"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/buttonDel" />
+
+            <Button
+                android:id="@+id/buttonDel"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="x"
+
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
+            android:id="@+id/linearLayout4"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
@@ -99,10 +86,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginLeft="16dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-/>
+                    android:layout_marginRight="16dp" />
 
                 <TextView
                     android:id="@+id/textViewQality"
@@ -116,18 +102,42 @@
                     android:textSize="30dp" />
 
                 <Spinner
-                    android:id="@+id/spinnerSizeQuality"
+                    android:id="@+id/spinnerQuality"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                     />
+                    android:layout_marginRight="16dp" />
+
+                <TextView
+                    android:id="@+id/textViewQant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Кол-во:"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spinnerSizeQuality" />
+                <Spinner
+                    android:id="@+id/spinnerQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp" />
+
             </LinearLayout>
 
         </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

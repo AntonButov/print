@@ -10,10 +10,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ import java.util.List;
 
 class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.ViewHolderPrint> {
 
-
+    static Uri uriDefault;
     private List<Order> orders;
     private final LayoutInflater mInflater;
     private MainActivity mainActivity;
@@ -32,6 +34,7 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
         mInflater = LayoutInflater.from(context);
         orders = new ArrayList<>();
         this.context = context;
+        uriDefault = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/test");
     }
 
     @NonNull
@@ -43,43 +46,53 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
     }
 
     @Override
-    public void onViewAttachedToWindow(@NonNull ViewHolderPrint holder) {
-        super.onViewAttachedToWindow(holder);
-
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull final RecyclerAdapterPrint.ViewHolderPrint holder, final int positionAdapter) {
     Uri uri = orders.get(positionAdapter).uri;
-    if (uri != null) {
+    if (uri == null)
+        uri = uriDefault;
         Picasso
                 .get()
-                .load(orders.get(positionAdapter).uri)
+                .load(uri)
                 .into(holder.imageView);
-    }
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    mainActivity.onItemClickImage(positionAdapter);
+                mainActivity.onItemClickImage(positionAdapter);
+                mainActivity.onItemClickChanger();
             }
         });
+
+        if (orders.get(positionAdapter).uri ==  uriDefault)
+            holder.buttonDel.setVisibility(View.INVISIBLE);
+        else {
+            holder.buttonDel.setVisibility(View.VISIBLE);
+            holder.buttonDel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainActivity.onItemClickDelete(positionAdapter);
+                }
+            });
+        }
 
         holder.spinnerSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                orders.get(positionAdapter).quality = parent.getItemAtPosition(position).toString();
+                orders.get(positionAdapter).quantity = position + 1;
+                holder.textViewItemPrice.setText(orders.get(positionAdapter).getPrice() + "Р");
+                mainActivity.onItemClickChanger();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
         holder.spinerQuality.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                orders.get(positionAdapter).quality = parent.getItemAtPosition(position).toString();
+                orders.get(positionAdapter).quality = position;
+                holder.textViewItemPrice.setText(orders.get(positionAdapter).getPrice() + "Р");
+                mainActivity.onItemClickChanger();
             }
 
             @Override
@@ -91,7 +104,9 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
         holder.spinnerQuantity.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                orders.get(positionAdapter).quantity = parent.getItemAtPosition(position).toString();
+                orders.get(positionAdapter).quantity = (position + 1);
+                holder.textViewItemPrice.setText(orders.get(positionAdapter).getPrice() + "Р");
+                mainActivity.onItemClickChanger();
             }
 
             @Override
@@ -99,8 +114,6 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
 
             }
         });
-
-
     }
 
     @Override
@@ -115,12 +128,15 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
 
     public class ViewHolderPrint extends RecyclerView.ViewHolder {
         private final ImageView imageView;
-        private Button buttonUpload;
         private Spinner spinnerSize, spinerQuality, spinnerQuantity;
+        private TextView textViewItemPrice;
+        private Button buttonDel;
 
         public ViewHolderPrint(View view) {
             super(view);
+            buttonDel = view.findViewById(R.id.buttonDel);
             imageView =  view.findViewById(R.id.imageView);
+            textViewItemPrice = view.findViewById(R.id.textItemPrice);
 
             spinnerSize = view.findViewById(R.id.spinnerSize);
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
@@ -128,13 +144,13 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerSize.setAdapter(adapter);
 
-              spinerQuality = view.findViewById(R.id.spinnerSizeQuality);
+              spinerQuality = view.findViewById(R.id.spinnerQuality);
             ArrayAdapter<CharSequence> adapterQuality = ArrayAdapter.createFromResource(context,
                     R.array.quality_array, R.layout.spinerquality);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinerQuality.setAdapter(adapterQuality);
 
-            spinnerQuantity = view.findViewById(R.id.spinnerQuant);
+            spinnerQuantity = view.findViewById(R.id.spinnerQuantity);
             ArrayAdapter<CharSequence> adapterQuant = ArrayAdapter.createFromResource(context,
                     R.array.quantity_array, R.layout.spinerquantity);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

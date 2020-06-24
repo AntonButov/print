@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
     final int PICTURE_REQUEST_CODE = 101;
 
-    private TextView textViewTel;
+    private TextView textViewTel, textViewResult;
     private Pref pref;
     private List<Order> orders = new ArrayList<>();
     private Button buttonPrint;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         setSupportActionBar(toolbar);
         pref = new Pref(getApplicationContext());
 
-          recyclerView = findViewById(R.id.reciclerOrders);
+         recyclerView = findViewById(R.id.reciclerOrders);
         adapterPrint = new RecyclerAdapterPrint(this, getApplicationContext());
         lm = new LinearLayoutManager(getBaseContext());
         recyclerView.setLayoutManager( lm );
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
         if (pref.getTel().equals("")) startActivity(new Intent(this, LoginActivity.class));
         textViewTel = findViewById(R.id.userTel);
+        textViewResult = findViewById(R.id.textViewResult);
         engine = new Engine(getApplication());
 
         buttonPrint = findViewById(R.id.buttonPrint);
@@ -156,6 +157,14 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
             if (order.uri != null)
                 buttonPrint.setVisibility(View.VISIBLE);
         }
+        textViewResult.setText("Итого: " + oredersGetResult());
+    }
+
+    private String oredersGetResult() {
+        float result = 0;
+        for ( Order order : orders)
+                result = result + order.getPrice();
+    return String.valueOf(result);
     }
 
 
@@ -166,14 +175,15 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     }
 
     @Override
-    public void onItemClickChanger(Order order) {
-
+    public void onItemClickChanger() {
+        onResume();
     }
 
     @Override
     public void onItemClickDelete(int position) {
-
-    }
+        orders.remove(position);
+        adapterPrint.adnotify(orders);
+           }
 
     @Override
     public void onItemClickImage(int position) {
