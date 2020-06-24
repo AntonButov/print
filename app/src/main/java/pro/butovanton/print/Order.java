@@ -27,7 +27,7 @@ public class Order {
     public float getPrice() {
         float ret;
         ret = Size.getSize().size.get(size).getPrice() * Quality.getQuality().quality.get(quality).getPrice() * quantity;
-        if (uri == null) ret = 0;
+        if (uri == RecyclerAdapterPrint.uriDefault) ret = 0;
         return ret;
     }
 

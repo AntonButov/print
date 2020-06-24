@@ -30,7 +30,7 @@
         android:layout_gravity="right"
         android:gravity="right"
         android:text="+375123456789"
-        android:textSize="18dp"
+        android:textSize="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,7 +65,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginBottom="16dp"
         android:text="Итого:"
-        android:textSize="14dp"
+        android:textSize="20dp"
         app:layout_constraintBottom_toTopOf="@+id/userTel"
         app:layout_constraintStart_toStartOf="parent" />
 

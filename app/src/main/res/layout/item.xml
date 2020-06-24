@@ -39,8 +39,8 @@
                 android:layout_height="wrap_content"
                 android:text="400 Р"
                 android:textColor="@color/cardview_dark_background"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toTopOf="@+id/textViewQant"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toBottomOf="@+id/buttonDel" />
@@ -50,7 +50,7 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="x"
-
+                android:background="@color/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

@@ -48,13 +48,11 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
     @Override
     public void onBindViewHolder(@NonNull final RecyclerAdapterPrint.ViewHolderPrint holder, final int positionAdapter) {
     Uri uri = orders.get(positionAdapter).uri;
-    if (uri == null)
-        uri = uriDefault;
         Picasso
                 .get()
                 .load(uri)
                 .into(holder.imageView);
-
+        holder.textViewItemPrice.setText(orders.get(positionAdapter).getPrice() + "Р");
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +69,7 @@ class RecyclerAdapterPrint extends RecyclerView.Adapter<RecyclerAdapterPrint.Vie
                 @Override
                 public void onClick(View v) {
                     mainActivity.onItemClickDelete(positionAdapter);
+                    holder.textViewItemPrice.setText(orders.get(positionAdapter).getPrice() + "Р");
                 }
             });
         }

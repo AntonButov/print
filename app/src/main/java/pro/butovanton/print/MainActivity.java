@@ -199,11 +199,13 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-        Order order = orders.get(position);
-        order.uri = selectedImage;
-        orders.set(position, order);
-        adapterPrint.adnotify(orders);
-        addNewOrder();
+            Order order = orders.get(position);
+            order.uri = selectedImage;
+            orders.set(position, order);
+            adapterPrint.adnotify(orders);
+       Uri lastUri = orders.get(orders.size()-1).uri;
+       if (lastUri != RecyclerAdapterPrint.uriDefault)
+           addNewOrder();
             //  engine.uploadFileToStorage(selectedImage);
         onResume();
         }
