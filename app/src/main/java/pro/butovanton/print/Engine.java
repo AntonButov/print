@@ -74,7 +74,7 @@ public Observable<Integer> uploadList(List<Order> orders) {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
                 i = 0;
-                Order order = new Order();
+                Order order = new Order(RecyclerAdapterPrint.uriDefault);
                 for (; i < orders.size() -1; ) {
                     order = orders.get(i);
                     if (order.uri != null) {

@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     }
 
     private void addNewOrder() {
-        Order order = new Order();
+        Order order = new Order(RecyclerAdapterPrint.uriDefault);
         order.tel = pref.getTel();
         order.num = orders.size();
         orders.add(order);
@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         this.position = position;
         Intent i = new Intent();
         i.setType("image/*");
+        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         i.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
     }
@@ -215,15 +216,22 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
 
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            Order order = orders.get(position);
-            order.uri = selectedImage;
-            orders.set(position, order);
-            adapterPrint.adnotify(orders);
-       Uri lastUri = orders.get(orders.size()-1).uri;
-       if (lastUri != RecyclerAdapterPrint.uriDefault)
-           addNewOrder();
-            //  engine.uploadFileToStorage(selectedImage);
+            if (data.getClipData() == null) {
+                Uri selectedImage = data.getData();
+                Order order = orders.get(position);
+                order.uri = selectedImage;
+                orders.set(position, order);
+                 Uri lastUri = orders.get(orders.size() - 1).uri;
+                if (lastUri != RecyclerAdapterPrint.uriDefault)
+                    addNewOrder();
+                //  engine.uploadFileToStorage(selectedImage);
+            }
+            else {
+                for (int i = 0 ; i < data.getClipData().getItemCount() ; i ++) {
+                orders.add(position, new Order(data.getClipData().getItemAt(i).getUri()));
+                }
+            }
+        adapterPrint.adnotify(orders);
         onResume();
         }
     }
