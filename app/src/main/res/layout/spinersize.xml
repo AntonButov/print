@@ -8,4 +8,4 @@
     android:textAlignment="inherit"
     android:textColor="@color/cardview_dark_background"
     android:background="@color/colorWhite"
-    android:textSize="32dp" />
+    android:textSize="24dp" />
