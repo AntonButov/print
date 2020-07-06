@@ -15,13 +15,22 @@ public class Order {
     public HashMap<String, Integer> qualityPice = new HashMap();
     public HashMap<String, Integer> sizePrice = new HashMap();
 
-    public Order(Uri uri) {
+    private void init() {
         tel = "77777777";
         size = 0;
         quality = 0;
         quantity = 1;
         num = 1;
-        this.uri = uri;
+    }
+
+    public Order() {
+       init();
+       this.uri = RecyclerAdapterPrint.uriDefault;
+    }
+
+    public Order(Uri uri) {
+      init();
+      this.uri = uri;
         }
 
     public float getPrice() {

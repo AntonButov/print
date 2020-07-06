@@ -90,29 +90,6 @@ public class InstrumentedTest {
     }
 
     @Test
-    public void uploadFile() throws InterruptedException {
-        NetworkService networkService;
-        JSONPlaceHolderApi jsonPlaceHolderApi;
-        networkService = NetworkService.getInstance();
-        jsonPlaceHolderApi = networkService.getJSONApi();
-        CountDownLatch count = new CountDownLatch(1);
-        String link = "https://firebasestorage.googleapis.com/v0/b/print-a8bb9.appspot.com/o/%2B3755646782%2Fimage%3A105?alt=media&token=86e0030a-1a87-4210-a6c8-bace1c119098";
-        jsonPlaceHolderApi.uploadFile("/89281240876/testww.jpg", link).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                assertTrue(response.code() == 202);
-                count.countDown();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-        count.await(1000, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
     public void uploadList() throws InterruptedException {
 
         List<Order> orders = new ArrayList<>();
@@ -125,7 +102,7 @@ public class InstrumentedTest {
         order.uri = uri;
         orders.add(order);
 
-        CountDownLatch count = new CountDownLatch(orders.size());
+        CountDownLatch count = new CountDownLatch(1);
 
         Engine engine = new Engine(context);
         engine.uploadList(orders).subscribe(new DisposableObserver<Integer>() {
@@ -133,7 +110,7 @@ public class InstrumentedTest {
             public void onNext(@NonNull Integer integer) {
                 integer ++;
                 Log.d("DEBUG", "upload: " + integer + " files");
-                count.countDown();
+
             }
 
             @Override
@@ -144,6 +121,7 @@ public class InstrumentedTest {
             @Override
             public void onComplete() {
                 System.out.println("test ok");
+                count.countDown();
             }
         });
 

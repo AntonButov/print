@@ -74,8 +74,8 @@ public Observable<Integer> uploadList(List<Order> orders) {
             @Override
             public void subscribe(@io.reactivex.rxjava3.annotations.NonNull ObservableEmitter<Integer> emitter) throws Throwable {
                 i = 0;
-                Order order = new Order(RecyclerAdapterPrint.uriDefault);
-                for (; i < orders.size() -1; ) {
+                Order order ;
+                for (; i < orders.size() ; ) {
                     order = orders.get(i);
                     if (order.uri != null) {
                         wait = true;
@@ -95,6 +95,8 @@ public Observable<Integer> uploadList(List<Order> orders) {
                             @Override
                             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
                                 Log.d("DEBUG", "error " + e);
+                                emitter.onError(new Throwable(e));
+                                wait = false;
                             }
                         });
                         while (wait)
@@ -115,6 +117,7 @@ public Observable<Integer> uploadList(List<Order> orders) {
                             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
                                 wait = false;
                                 Log.d("DEBUG", "error " + e);
+                                emitter.onError(new Throwable(e));
                             }
                         });
                         while (wait)

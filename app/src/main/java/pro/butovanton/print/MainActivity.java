@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Environment;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     }
 
     private void addNewOrder() {
-        Order order = new Order(RecyclerAdapterPrint.uriDefault);
+        Order order = new Order();
         order.tel = pref.getTel();
         order.num = orders.size();
         orders.add(order);
@@ -142,12 +143,12 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
             case (R.id.ver_app):
                 PackageInfo packageInfo = null;
                 try {
-                    packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);
+                    packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
 
-                String ver = packageInfo.versionName ;
+                String ver = packageInfo.versionName;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Версия программы:");
                 builder.setMessage(ver);
@@ -158,6 +159,11 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                     }
                 });
                 builder.show();
+                break;
+            case (R.id.exit):
+                finishAffinity();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            break;
         }
 
 
@@ -175,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
                 buttonPrint.setVisibility(View.VISIBLE);
         }
         textViewResult.setText("Итого: " + oredersGetResult());
+
     }
 
     private String oredersGetResult() {
@@ -200,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
     public void onItemClickDelete(int position) {
         orders.remove(position);
         adapterPrint.adnotify(orders);
+        onResume();
            }
 
     @Override
@@ -210,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         i.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(i, "Выберите файл"), PICTURE_REQUEST_CODE);
+        onResume();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -218,13 +227,7 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         if (requestCode == PICTURE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
             if (data.getClipData() == null) {
                 Uri selectedImage = data.getData();
-                Order order = orders.get(position);
-                order.uri = selectedImage;
-                orders.set(position, order);
-                 Uri lastUri = orders.get(orders.size() - 1).uri;
-                if (lastUri != RecyclerAdapterPrint.uriDefault)
-                    addNewOrder();
-                //  engine.uploadFileToStorage(selectedImage);
+                orders.add(position, new Order(selectedImage));
             }
             else {
                 for (int i = 0 ; i < data.getClipData().getItemCount() ; i ++) {
@@ -235,4 +238,5 @@ public class MainActivity extends AppCompatActivity implements ItemClickListener
         onResume();
         }
     }
+
 }
